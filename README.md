@@ -14,11 +14,9 @@
 
 Fove is an open-source reactive UI framework for Luau.
 
-The project is currently in early development.
-
 ## Status
 
-🚧 Work in progress.
+Fove is currently in early development.
 
 ## License
 
