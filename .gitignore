@@ -12,3 +12,21 @@ profile.svg
 
 # Time trace
 trace.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Packages / generated
+Packages/
+DevPackages/
+.pesde/
+
+# Builds
+build/
+dist/
+sourcemap.json
+
+# Roblox Studio temporary files
+*.rbxl.lock
+*.rbxlx.lock
