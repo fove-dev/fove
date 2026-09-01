@@ -1,5 +1,5 @@
 --!strict
 
-local Fove = {}
-
-return Fove
+return {
+    signal = require(`./core/signal`),
+}
