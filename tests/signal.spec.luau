@@ -46,3 +46,25 @@ test.case("signal supports tables", function(asserts)
 
 	asserts.eq(newValue, value())
 end)
+
+test.case("signal supports optional values", function(asserts)
+	type User = {
+		name: string,
+	}
+
+	local user, setUser = signal(nil :: User?)
+
+	asserts.eq(user(), nil)
+
+	local estatic: User = {
+		name = "Estatic",
+	}
+
+	setUser(estatic)
+
+	asserts.eq(user(), estatic)
+
+	setUser(nil)
+
+	asserts.eq(user(), nil)
+end)
