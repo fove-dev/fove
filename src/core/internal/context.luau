@@ -13,7 +13,7 @@ function Context.getObserver(): Observer?
     return activeObserver
 end
 
-function Context.setObserver(observer: Observer?): ()
+function Context.setObserver(observer: Observer?): Observer?
     
     local previous = activeObserver
     activeObserver = observer
