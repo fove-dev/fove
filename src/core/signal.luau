@@ -26,7 +26,7 @@ local function signal<T>(initialValue: T): (()->T, (T)->())
 
         value = newValue
 
-        -- maybe notify?
+        Graph.notify(source)
     end
 
     return get, set
