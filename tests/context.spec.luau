@@ -5,7 +5,6 @@ local test = require("@std/test")
 local Context = require("../src/core/internal/context")
 local Types = require("../src/core/internal/types")
 
-type Source = Types.Source
 type Observer = Types.Observer
 
 test.case("context restores the previous observer", function(asserts)
