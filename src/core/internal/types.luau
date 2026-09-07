@@ -9,4 +9,4 @@ export type Observer = {
     invalidate: () -> (),
 }
 
-return table.create(0)
+return {}
