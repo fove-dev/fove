@@ -26,6 +26,8 @@ local function effect(callback: () -> ()): () -> ()
 		Context.setObserver(previous)
 		if success then return end
 
+        Graph.detach(currentObserver)
+
         error(err, 0)
 	end
 
