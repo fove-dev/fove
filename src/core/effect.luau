@@ -19,6 +19,8 @@ local function effect(callback: () -> ()): () -> ()
 
 		if currentObserver == nil then return end
 
+		Graph.detach(currentObserver)
+
 		local previous = Context.setObserver(currentObserver)
 
 		local success, err = pcall(function(): string? callback(); return end)
@@ -27,6 +29,7 @@ local function effect(callback: () -> ()): () -> ()
 		if success then return end
 
         Graph.detach(currentObserver)
+		disposed = true
 
         error(err, 0)
 	end
