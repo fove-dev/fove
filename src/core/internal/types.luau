@@ -9,4 +9,9 @@ export type Observer = {
     invalidate: () -> (),
 }
 
+export type Owner = {
+    disposables: { [()->()]: boolean },
+    disposed: boolean,
+}
+
 return {}

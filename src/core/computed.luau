@@ -1,5 +1,6 @@
 --!strict
 
+local Ownership = require("./internal/ownership")
 local Context = require("./internal/context")
 local Graph = require("./internal/graph")
 local Types = require("./internal/types")
@@ -29,6 +30,8 @@ local function computed<T>(callback: () -> T): () -> T
 		dependencies = {},
 		invalidate = invalidate,
 	}
+
+	Ownership.register(function() Graph.detach(node) end)
 
 	local function recompute(): T
 		
