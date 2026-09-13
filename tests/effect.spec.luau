@@ -3,6 +3,7 @@
 local test = require("@std/test")
 local Fove = require("../src")
 
+local computed = Fove.computed
 local signal = Fove.signal
 local effect = Fove.effect
 
@@ -89,4 +90,24 @@ test.case("effect tracks multiple signals", function(asserts)
 	setB(20)
 
 	asserts.eq(result, 30)
+end)
+
+test.case("effects react to computed values", function(asserts)
+	local value, setValue = signal(10)
+
+	local doubled = computed(function()
+		return value() * 2
+	end)
+
+	local observed = 0
+
+	effect(function()
+		observed = doubled()
+	end)
+
+	asserts.eq(observed, 20)
+
+	setValue(20)
+
+	asserts.eq(observed, 40)
 end)
