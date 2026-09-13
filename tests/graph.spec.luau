@@ -34,9 +34,11 @@ test.case("graph ignores reads without an active observer", function(asserts)
 		subscribers = {},
 	}
 
-	Context.setObserver(nil)
+	local previous = Context.setObserver(nil)
 
 	Graph.track(source)
+
+	Context.setObserver(previous)
 
 	local hasSubscriber = next(source.subscribers) ~= nil
 
