@@ -21,7 +21,7 @@ function Ownership.register(dispose: () -> ()): ()
     if owner == nil then return end
 	if owner.disposed then dispose(); return end
 
-	owner.disposables[dispose] = true
+	table.insert(owner.disposables, dispose)
 end
 
 function Ownership.dispose(owner: Owner): ()
@@ -29,9 +29,9 @@ function Ownership.dispose(owner: Owner): ()
     if owner.disposed then return end
 	owner.disposed = true
 
-	for dispose in owner.disposables do
-
-        dispose()
+	for index = #owner.disposables, 1, -1 do
+        
+        owner.disposables[index]()
     end
 
 	table.clear(owner.disposables)

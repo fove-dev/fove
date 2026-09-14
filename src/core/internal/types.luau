@@ -10,7 +10,7 @@ export type Observer = {
 }
 
 export type Owner = {
-    disposables: { [()->()]: boolean },
+    disposables: { () -> () },
     disposed: boolean,
 }
 

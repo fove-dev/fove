@@ -14,6 +14,7 @@ local function computed<T>(callback: () -> T): () -> T
 	
     local dirty = true
 	local value: T? = nil
+	local disposed: boolean = false
 
 	local node: ComputedNode
 
@@ -31,7 +32,16 @@ local function computed<T>(callback: () -> T): () -> T
 		invalidate = invalidate,
 	}
 
-	Ownership.register(function() Graph.detach(node) end)
+	
+	local function dispose(): ()
+		
+		if disposed then return end
+		
+		disposed = true
+		Graph.detach(node)
+	end
+	
+	Ownership.register(dispose)
 
 	local function recompute(): T
 		
@@ -54,7 +64,11 @@ local function computed<T>(callback: () -> T): () -> T
 	end
 
 	local function get(): T
-		
+
+		if disposed then
+			error("cannot read a disposed computed", 2)
+		end
+
         Graph.track(node)
 
 		if dirty then return recompute() end
