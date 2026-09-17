@@ -1,6 +1,7 @@
 --!strict
 
 local Ownership = require(`./internal/ownership`)
+local Scheduler = require(`./internal/scheduler`)
 local Context = require(`./internal/context`)
 local Graph = require(`./internal/graph`)
 local Types = require(`./internal/types`)
@@ -51,7 +52,7 @@ local function effect(callback: () -> ()): () -> ()
 
 	observer = {
 		dependencies = {},
-		invalidate = run,
+		invalidate = function() Scheduler.enqueue(run) end,
 	}
 
 	local function dispose(): ()
