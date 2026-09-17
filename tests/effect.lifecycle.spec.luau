@@ -4,6 +4,7 @@ local test = require("@std/test")
 local Fove = require("../src")
 local Context = require("../src/core/internal/context")
 
+local onCleanup = Fove.onCleanup
 local signal = Fove.signal
 local effect = Fove.effect
 
@@ -60,4 +61,39 @@ test.case("failed effects do not remain subscribed", function(asserts)
 	end)
 
 	asserts.eq(runs, 1)
+end)
+
+test.case("failed effects dispose their run owner", function(asserts)
+	local trigger, setTrigger = signal(false)
+
+	local runs = 0
+	local cleanups = 0
+
+	effect(function()
+		runs += 1
+
+		if trigger() then
+			onCleanup(function()
+				cleanups += 1
+			end)
+
+			error("oops")
+		end
+	end)
+
+	asserts.eq(runs, 1)
+	asserts.eq(cleanups, 0)
+
+	local success = pcall(function()
+		setTrigger(true)
+	end)
+
+	asserts.eq(success, false)
+	asserts.eq(runs, 2)
+	asserts.eq(cleanups, 1)
+
+	setTrigger(false)
+
+	asserts.eq(runs, 2)
+	asserts.eq(cleanups, 1)
 end)

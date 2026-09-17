@@ -3,6 +3,7 @@
 local test = require("@std/test")
 local Fove = require("../src")
 
+local onCleanup = Fove.onCleanup
 local computed = Fove.computed
 local signal = Fove.signal
 local effect = Fove.effect
@@ -110,4 +111,41 @@ test.case("effects react to computed values", function(asserts)
 	setValue(20)
 
 	asserts.eq(observed, 40)
+end)
+
+test.case("effect cleanup runs before rerun", function(asserts)
+	local value, setValue = signal(0)
+	local events = {}
+
+	effect(function()
+		local current = value()
+
+		table.insert(events, `run {current}`)
+
+		onCleanup(function()
+			table.insert(events, `cleanup {current}`)
+		end)
+	end)
+
+	setValue(1)
+
+	asserts.eq(events[1], "run 0")
+	asserts.eq(events[2], "cleanup 0")
+	asserts.eq(events[3], "run 1")
+end)
+
+test.case("effect cleanup runs on disposal", function(asserts)
+	local cleaned = false
+
+	local dispose = effect(function()
+		onCleanup(function()
+			cleaned = true
+		end)
+	end)
+
+	asserts.eq(cleaned, false)
+
+	dispose()
+
+	asserts.eq(cleaned, true)
 end)
