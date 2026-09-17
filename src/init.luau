@@ -1,6 +1,7 @@
 --!strict
 
 return {
+    batch = require(`@self/core/batch`),
     signal = require(`@self/core/signal`),
     effect = require(`@self/core/effect`),
     untrack = require(`@self/core/untrack`),
