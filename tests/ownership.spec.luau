@@ -1,8 +1,8 @@
 --!strict
 
-local test = require("@std/test")
-local Fove = require("../src")
-local Ownership = require("../src/core/internal/ownership")
+local test = require(`@std/test`)
+local Fove = require(`../src`)
+local Ownership = require(`../src/core/internal/ownership`)
 
 local signal = Fove.signal
 local effect = Fove.effect

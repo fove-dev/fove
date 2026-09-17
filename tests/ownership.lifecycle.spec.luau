@@ -1,9 +1,9 @@
 --!strict
 
-local test = require("@std/test")
+local test = require(`@std/test`)
 
-local Fove = require("../src")
-local Ownership = require("../src/core/internal/ownership")
+local Fove = require(`../src`)
+local Ownership = require(`../src/core/internal/ownership`)
 
 local signal = Fove.signal
 local computed = Fove.computed

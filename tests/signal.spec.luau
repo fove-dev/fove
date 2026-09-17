@@ -1,7 +1,7 @@
 --!strict
 
-local test = require("@std/test")
-local Fove = require("../src")
+local test = require(`@std/test`)
+local Fove = require(`../src`)
 
 local signal = Fove.signal
 

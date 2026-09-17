@@ -1,9 +1,9 @@
 --!strict
 
-local test = require("@std/test")
+local test = require(`@std/test`)
 
-local Context = require("../src/core/internal/context")
-local Types = require("../src/core/internal/types")
+local Context = require(`../src/core/internal/context`)
+local Types = require(`../src/core/internal/types`)
 
 type Observer = Types.Observer
 

@@ -1,8 +1,8 @@
 --!strict
 
-local test = require("@std/test")
-local Fove = require("../src")
-local Context = require("../src/core/internal/context")
+local test = require(`@std/test`)
+local Fove = require(`../src`)
+local Context = require(`../src/core/internal/context`)
 
 local onCleanup = Fove.onCleanup
 local signal = Fove.signal
