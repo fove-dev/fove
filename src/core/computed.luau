@@ -1,13 +1,12 @@
 --!strict
 
-local Ownership = require("./internal/ownership")
-local Context = require("./internal/context")
-local Graph = require("./internal/graph")
-local Types = require("./internal/types")
+local Ownership = require(`./internal/ownership`)
+local Context = require(`./internal/context`)
+local Graph = require(`./internal/graph`)
+local Types = require(`./internal/types`)
 
 type Source = Types.Source
 type Observer = Types.Observer
-
 type ComputedNode = Source & Observer
 
 local function computed<T>(callback: () -> T): () -> T
@@ -31,7 +30,6 @@ local function computed<T>(callback: () -> T): () -> T
 		dependencies = {},
 		invalidate = invalidate,
 	}
-
 	
 	local function dispose(): ()
 		
@@ -65,12 +63,9 @@ local function computed<T>(callback: () -> T): () -> T
 
 	local function get(): T
 
-		if disposed then
-			error("cannot read a disposed computed", 2)
-		end
+		if disposed then error("cannot read a disposed computed", 2) end
 
         Graph.track(node)
-
 		if dirty then return recompute() end
 
 		return value:: T

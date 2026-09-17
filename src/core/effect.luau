@@ -1,9 +1,9 @@
 --!strict
 
-local Ownership = require("./internal/ownership")
-local Context = require("./internal/context")
-local Graph = require("./internal/graph")
-local Types = require("./internal/types")
+local Ownership = require(`./internal/ownership`)
+local Context = require(`./internal/context`)
+local Graph = require(`./internal/graph`)
+local Types = require(`./internal/types`)
 
 type Observer = Types.Observer
 type Owner = Types.Owner
@@ -39,7 +39,6 @@ local function effect(callback: () -> ()): () -> ()
 		local success, err = pcall(function(): string? Ownership.run(runOwner :: Owner, callback); return end)
 
 		Context.setObserver(previous)
-
 		if success then return end
 
 		Graph.detach(currentObserver)
@@ -58,7 +57,6 @@ local function effect(callback: () -> ()): () -> ()
 	local function dispose(): ()
 		
 		if disposed then return end
-
 		disposed = true
 
 		Graph.detach(observer :: Observer)
