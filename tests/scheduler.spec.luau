@@ -25,3 +25,31 @@ test.case("scheduler deduplicates queued effects", function(asserts)
 
     asserts.eq(runs, 3)
 end)
+
+test.case("scheduler recovers after effect errors", function(asserts)
+	local first, setFirst = signal(0)
+	local second, setSecond = signal(0)
+
+	local secondRuns = 0
+
+	effect(function()
+		if first() == 1 then
+			error("oops")
+		end
+	end)
+
+	effect(function()
+		second()
+		secondRuns += 1
+	end)
+
+	local success = pcall(function()
+		setFirst(1)
+	end)
+
+	asserts.eq(success, false)
+
+	setSecond(1)
+
+	asserts.eq(secondRuns, 2)
+end)

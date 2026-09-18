@@ -3,6 +3,7 @@
 local test = require(`@std/test`)
 local Fove = require(`../src`)
 
+local computed = Fove.computed
 local effect = Fove.effect
 local signal = Fove.signal
 local batch = Fove.batch
@@ -81,4 +82,40 @@ test.case("batch restores scheduler state after errors", function(asserts)
 	setValue(2)
 
 	asserts.eq(runs, 3)
+end)
+
+test.case("batched diamond graph updates effects only once", function(asserts)
+	local a, setA = signal(1)
+	local extra, setExtra = signal(0)
+
+	local b = computed(function()
+		return a() * 2
+	end)
+
+	local c = computed(function()
+		return a() * 3
+	end)
+
+	local d = computed(function()
+		return b() + c() + extra()
+	end)
+
+	local runs = 0
+	local value = 0
+
+	effect(function()
+		runs += 1
+		value = d()
+	end)
+
+	asserts.eq(runs, 1)
+	asserts.eq(value, 5)
+
+	batch(function()
+		setA(2)
+		setExtra(10)
+	end)
+
+	asserts.eq(runs, 2)
+	asserts.eq(value, 20)
 end)
