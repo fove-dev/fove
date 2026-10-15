@@ -78,3 +78,41 @@ test.case("owned computed values cannot be reused after disposal", function(asse
 	asserts.eq(success, false)
 	asserts.eq(runs, 1)
 end)
+
+test.case("ownership completes cleanup after errors", function(asserts)
+    local owner = Ownership.create()
+    local order = {}
+
+    Ownership.run(owner, function()
+        Ownership.register(function()
+            table.insert(order, "first")
+        end)
+
+        Ownership.register(function()
+            table.insert(order, "failing")
+            error("cleanup failed")
+        end)
+
+        Ownership.register(function()
+            table.insert(order, "last")
+        end)
+    end)
+
+    local success = pcall(function()
+        Ownership.dispose(owner)
+    end)
+
+    asserts.eq(success, false)
+
+    asserts.eq(#order, 3)
+    asserts.eq(order[1], "last")
+    asserts.eq(order[2], "failing")
+    asserts.eq(order[3], "first")
+
+    local successAgain = pcall(function()
+        Ownership.dispose(owner)
+    end)
+
+    asserts.eq(successAgain, true)
+    asserts.eq(#order, 3)
+end)
