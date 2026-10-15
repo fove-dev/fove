@@ -17,10 +17,11 @@ local function effect(callback: () -> ()): () -> ()
 
 	local function disposeRunOwner(): ()
 		
-		if runOwner == nil then return end
+		local owner = runOwner
+		if owner == nil then return end
 
-		Ownership.dispose(runOwner)
 		runOwner = nil
+		Ownership.dispose(owner)
 	end
 
 	local function run(): ()
@@ -31,22 +32,28 @@ local function effect(callback: () -> ()): () -> ()
 		if currentObserver == nil then return end
 
 		Graph.detach(currentObserver)
-		disposeRunOwner()
+
+		local cleanupSuccess, cleanupErr = pcall(function(): string? disposeRunOwner(); return end)
+		if not cleanupSuccess then
+			disposed = true
+			error(cleanupErr, 0)
+		end
+		
+		if disposed then return end
 
 		runOwner = Ownership.create()
 
 		local previous = Context.setObserver(currentObserver)
-
-		local success, err = pcall(function(): string? Ownership.run(runOwner :: Owner, callback); return end)
+		local success, err = pcall(function(): string? Ownership.run(runOwner:: Owner, callback); return end)
 
 		Context.setObserver(previous)
-		if success then return end
 
-		Graph.detach(currentObserver)
-		disposeRunOwner()
+		if disposed or not success then Graph.detach(currentObserver) end
+		if success then return end
 
 		disposed = true
 
+		pcall(disposeRunOwner)
 		error(err, 0)
 	end
 
@@ -60,13 +67,20 @@ local function effect(callback: () -> ()): () -> ()
 		if disposed then return end
 		disposed = true
 
-		Graph.detach(observer :: Observer)
+		Graph.detach(observer:: Observer)
 		disposeRunOwner()
 	end
 
 	Ownership.register(dispose)
+	Scheduler.beginBatch()
 
-	run()
+	local success, err = pcall(function(): string? run(); return end)
+	local flushSuccess, flushErr = pcall(function(): string? Scheduler.endBatch(); return end)
+
+	if not (success and flushSuccess) then
+		pcall(dispose)
+		error(if not success then err else flushErr, 0)
+	end
 
 	return dispose
 end
