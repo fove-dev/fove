@@ -22,33 +22,33 @@ end
 function Scheduler.flush(): ()
 	
     if flushing or batchDepth > 0 then return end
-
 	flushing = true
 
-	local success, err = pcall(function(): string?
+	local failed: boolean = false
+	local firstError: any = nil
+	local index = 1
+
+	while index <= #queue do
 		
-        local index = 1
+		local callback = queue[index]
+		queued[callback] = nil
 
-		while index <= #queue do
-			
-            local callback = queue[index]
-
-			queued[callback] = nil
-			callback()
-
-			index += 1
+		local success, err = pcall(callback)
+		if not (success or failed) then
+			failed = true
+			firstError = firstError or err
 		end
 
-		return nil
-	end)
+		index += 1
+	end
 
 	table.clear(queue)
 	table.clear(queued)
 	flushing = false
 
-	if success then return end
+	if not failed then return end
 
-    error(err, 0)
+    error(firstError, 0)
 end
 
 function Scheduler.beginBatch(): ()
