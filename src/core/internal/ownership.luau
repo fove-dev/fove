@@ -29,12 +29,23 @@ function Ownership.dispose(owner: Owner): ()
     if owner.disposed then return end
 	owner.disposed = true
 
+    local firstError: any = nil
+    local failed: boolean = false
+
 	for index = #owner.disposables, 1, -1 do
-        
-        owner.disposables[index]()
+
+        local success, err = pcall(function(): string? owner.disposables[index](); return end)
+        if success then continue end
+
+        failed = true
+        firstError = err
     end
 
 	table.clear(owner.disposables)
+
+    if not failed then return end
+
+    error(firstError, 0)
 end
 
 function Ownership.run(owner: Owner, callback: ()->()): ()
