@@ -53,3 +53,39 @@ test.case("scheduler recovers after effect errors", function(asserts)
 
 	asserts.eq(secondRuns, 2)
 end)
+
+test.case("scheduler continues after callback errors", function(asserts)
+    local Scheduler = require(`../src/core/internal/scheduler`)
+    local order = {}
+
+    Scheduler.beginBatch()
+
+    Scheduler.enqueue(function()
+        table.insert(order, "first")
+    end)
+
+    Scheduler.enqueue(function()
+        table.insert(order, "failing")
+        error("oops")
+    end)
+
+    Scheduler.enqueue(function()
+        table.insert(order, "last")
+    end)
+
+    local success = pcall(Scheduler.endBatch)
+
+    asserts.eq(success, false)
+    asserts.eq(#order, 3)
+    asserts.eq(order[1], "first")
+    asserts.eq(order[2], "failing")
+    asserts.eq(order[3], "last")
+
+    local recovered = false
+
+    Scheduler.enqueue(function()
+        recovered = true
+    end)
+
+    asserts.eq(recovered, true)
+end)
