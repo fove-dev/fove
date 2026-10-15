@@ -35,7 +35,7 @@ function Ownership.dispose(owner: Owner): ()
 	for index = #owner.disposables, 1, -1 do
 
         local success, err = pcall(function(): string? owner.disposables[index](); return end)
-        if success then continue end
+        if success or failed then continue end
 
         failed = true
         firstError = err
