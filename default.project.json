@@ -1,0 +1,12 @@
+{
+  "name": "FoveDevelopment",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Fove": {
+        "$path": "src"
+      }
+    }
+  }
+}
