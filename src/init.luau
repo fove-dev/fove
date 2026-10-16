@@ -11,4 +11,5 @@ return {
 
     --// Roblox
     mount = require(`@self/roblox/mount`),
+    new = require(`@self/roblox/new`),
 }
