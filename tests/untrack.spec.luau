@@ -45,7 +45,7 @@ test.case("untrack restores tracking after errors", function(asserts)
 		runs += 1
 
 		pcall(function()
-			untrack(function()
+			untrack(function(): ()
 				error("oops")
 			end)
 		end)
@@ -78,4 +78,14 @@ test.case("untrack preserves ownership context", function(asserts)
 	dispose()
 
 	asserts.eq(cleaned, true)
+end)
+
+test.case("untrack preserves multiple return values", function(asserts)
+    local first, second, third = untrack(function()
+        return 10, nil, "Fove"
+    end)
+
+    asserts.eq(first, 10)
+    asserts.eq(second, nil)
+    asserts.eq(third, "Fove")
 end)

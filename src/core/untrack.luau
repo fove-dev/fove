@@ -2,17 +2,18 @@
 
 local Context = require(`./internal/context`)
 
-local function untrack<T>(callback: () -> T): T
-	
+type Untrack = <R...>(callback: () -> R...) -> R...
+
+local function untrack(callback: () -> ...any): ...any
+
     local previous = Context.setObserver(nil)
+    local results = table.pack(pcall(callback))
 
-	local success, result = pcall(callback)
+    Context.setObserver(previous)
 
-	Context.setObserver(previous)
+    if not results[1] then error(results[2], 0) end
 
-	if not success then error(result, 0) end
-
-	return result
+    return table.unpack(results, 2, results.n)
 end
 
-return untrack
+return untrack:: Untrack
