@@ -1,7 +1,9 @@
 --!strict
 
-local queue = {}
-local queued = {}
+type Callback = () -> ()
+
+local queue: { Callback } = {}
+local queued: { [Callback]: boolean } = {}
 local flushing = false
 local batchDepth = 0
 

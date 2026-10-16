@@ -27,7 +27,7 @@ local function signal<T>(initialValue: T): (()->T, (T)->())
 
         Scheduler.beginBatch()
 
-        local success, err = pcall(function(): string? Graph.notify(source); return end)
+        local success, err = pcall(Graph.notify, source)
         Scheduler.endBatch()
 
         if success then return end

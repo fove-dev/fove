@@ -34,7 +34,7 @@ function Ownership.dispose(owner: Owner): ()
 
 	for index = #owner.disposables, 1, -1 do
 
-        local success, err = pcall(function(): string? owner.disposables[index](); return end)
+        local success, err = pcall(owner.disposables[index])
         if success or failed then continue end
 
         failed = true
@@ -51,7 +51,7 @@ end
 function Ownership.run(owner: Owner, callback: ()->()): ()
 	
     local previous = Context.setOwner(owner)
-	local success, result = pcall(function(): string? callback(); return end)
+	local success, result = pcall(callback)
 
 	Context.setOwner(previous)
 

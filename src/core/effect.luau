@@ -33,7 +33,7 @@ local function effect(callback: () -> ()): () -> ()
 
 		Graph.detach(currentObserver)
 
-		local cleanupSuccess, cleanupErr = pcall(function(): string? disposeRunOwner(); return end)
+		local cleanupSuccess, cleanupErr = pcall(disposeRunOwner)
 		if not cleanupSuccess then
 			disposed = true
 			error(cleanupErr, 0)
@@ -44,7 +44,7 @@ local function effect(callback: () -> ()): () -> ()
 		runOwner = Ownership.create()
 
 		local previous = Context.setObserver(currentObserver)
-		local success, err = pcall(function(): string? Ownership.run(runOwner:: Owner, callback); return end)
+		local success, err = pcall(Ownership.run, runOwner:: Owner, callback)
 
 		Context.setObserver(previous)
 
@@ -74,8 +74,8 @@ local function effect(callback: () -> ()): () -> ()
 	Ownership.register(dispose)
 	Scheduler.beginBatch()
 
-	local success, err = pcall(function(): string? run(); return end)
-	local flushSuccess, flushErr = pcall(function(): string? Scheduler.endBatch(); return end)
+	local success, err = pcall(run)
+	local flushSuccess, flushErr = pcall(Scheduler.endBatch)
 
 	if not (success and flushSuccess) then
 		pcall(dispose)

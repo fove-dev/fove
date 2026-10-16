@@ -6,7 +6,7 @@ local function batch(callback: () -> ()): ()
 	
     Scheduler.beginBatch()
 
-	local success, err = pcall(function(): string? callback(); return end)
+	local success, err = pcall(callback)
 
 	Scheduler.endBatch()
 	if success then return end
