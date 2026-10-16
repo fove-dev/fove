@@ -89,3 +89,55 @@ test.case("scheduler continues after callback errors", function(asserts)
 
     asserts.eq(recovered, true)
 end)
+
+test.case("scheduler detects infinite reactive updates", function(asserts)
+    local count, setCount = signal(0)
+    local runs = 0
+
+    local success, err = pcall(function()
+        effect(function()
+            local current = count()
+            runs += 1
+
+            -- prevents from crashing if the protection fails
+            if runs > 2000 then
+                error("test safety limit reached")
+            end
+
+            setCount(current + 1)
+        end)
+    end)
+
+    asserts.eq(success, false)
+    asserts.eq(string.find(tostring(err), "reactive update loop", 1, true) ~= nil, true)
+
+	local other, setOther = signal(0)
+	local otherRuns = 0
+
+	effect(function()
+		other()
+		otherRuns += 1
+	end)
+
+	setOther(1)
+
+	asserts.eq(otherRuns, 2)
+	asserts.eq(runs < 2000, true)
+end)
+
+test.case("scheduler allows finite reactive updates", function(asserts)
+    local count, setCount = signal(0)
+    local runs = 0
+
+    effect(function()
+        local current = count()
+        runs += 1
+
+        if current < 5 then
+            setCount(current + 1)
+        end
+    end)
+
+    asserts.eq(count(), 5)
+    asserts.eq(runs, 6)
+end)

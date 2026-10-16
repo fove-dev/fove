@@ -2,10 +2,14 @@
 
 type Callback = () -> ()
 
+const MAX_RUNS_PER_FLUSH = 1000
+
+local runCounts: { [Callback]: number } = {}
 local queue: { Callback } = {}
 local queued: { [Callback]: boolean } = {}
 local flushing = false
 local batchDepth = 0
+
 
 local Scheduler = {}
 
@@ -35,6 +39,15 @@ function Scheduler.flush(): ()
 		local callback = queue[index]
 		queued[callback] = nil
 
+		local runs = (runCounts[callback] or 0) + 1
+		runCounts[callback] = runs
+
+		if runs > MAX_RUNS_PER_FLUSH then
+			firstError =  (not failed) and "Fove: reactive update loop detected" or firstError
+			failed = true
+			index += 1; continue
+		end
+
 		local success, err = pcall(callback)
 		if not (success or failed) then
 			failed = true
@@ -46,6 +59,8 @@ function Scheduler.flush(): ()
 
 	table.clear(queue)
 	table.clear(queued)
+	table.clear(runCounts)
+	
 	flushing = false
 
 	if not failed then return end
