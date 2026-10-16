@@ -132,6 +132,7 @@ test.case("computed supports optional values", function(asserts)
 end)
 
 test.case("computed can retry after errors", function(asserts)
+
 	local shouldFail, setShouldFail = signal(true)
 	local runs = 0
 
@@ -177,4 +178,66 @@ test.case("computed stays lazy across multiple invalidations", function(asserts)
 
 	asserts.eq(total(), 30)
 	asserts.eq(runs, 2)
+end)
+
+test.case("computed detects direct circular dependencies", function(asserts)
+    local recursive: (() -> number)? = nil
+
+    recursive = computed(function()
+        return assert(recursive, "computed is nil")() + 1
+    end)
+
+    local value = assert(recursive, "computed is nil")
+    local success, err = pcall(value)
+
+    asserts.eq(success, false)
+    asserts.eq(
+        string.find(tostring(err), "circular computed dependency", 1, true) ~= nil,
+        true
+    )
+end)
+
+test.case("computed detects indirect circular dependencies", function(asserts)
+    local a: (() -> number)? = nil
+    local b: (() -> number)? = nil
+
+    a = computed(function()
+        return assert(b, "computed B is nil")() + 1
+    end)
+
+    b = computed(function()
+        return assert(a, "computed A is nil")() + 1
+    end)
+
+    local value = assert(a, "computed A is nil")
+    local success, err = pcall(value)
+
+    asserts.eq(success, false)
+    asserts.eq(
+        string.find(tostring(err), "circular computed dependency", 1, true) ~= nil,
+        true
+    )
+end)
+
+test.case("computed recovers after circular dependency errors", function(asserts)
+    local circular, setCircular = signal(true)
+    local recursive: (() -> number)? = nil
+
+    recursive = computed(function()
+        if circular() then
+            return assert(recursive, "computed is nil")() + 1
+        end
+
+        return 42
+    end)
+
+    local value = assert(recursive, "computed is nil")
+
+    local success = pcall(value)
+    asserts.eq(success, false)
+
+    setCircular(false)
+
+    asserts.eq(value(), 42)
+    asserts.eq(value(), 42)
 end)
