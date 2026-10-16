@@ -14,6 +14,7 @@ local function computed<T>(callback: () -> T): () -> T
     local dirty = true
 	local value: T? = nil
 	local disposed: boolean = false
+	local evaluating: boolean = false
 
 	local node: ComputedNode
 
@@ -45,10 +46,13 @@ local function computed<T>(callback: () -> T): () -> T
 		
         Graph.detach(node)
 
+		evaluating = true
+
 		local previous = Context.setObserver(node)
 		local success, result = pcall(callback)
 
 		Context.setObserver(previous)
+		evaluating = false
 
 		if not success then
 			Graph.detach(node)
@@ -64,6 +68,7 @@ local function computed<T>(callback: () -> T): () -> T
 	local function get(): T
 
 		if disposed then error("cannot read a disposed computed", 2) end
+		if evaluating then error("circular computed dependency detected", 2) end
 
         Graph.track(node)
 		if dirty then return recompute() end
