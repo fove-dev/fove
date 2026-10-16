@@ -7,4 +7,6 @@
         "editor.defaultFormatter": "JohnnyMorganz.stylua",
         "editor.formatOnSave": false
     },
+    "luau-lsp.fflags.enableNewSolver": true,
+    "stylua.targetReleaseVersion": "latest",
 }
